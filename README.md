@@ -2,7 +2,7 @@
 
 # Installation
 
-In Xcode go to `File -> Add Packages... -> Search or Enter Package URL` and paste in the repo's url: 
+In Xcode go to `File -> Add Packages... -> Search or Enter Package URL` and paste in the repo's url: [https://github.com/pedroesli/DragAndDrop](https://github.com/pedroesli/DragAndDrop)
 
 ## How to use
 
@@ -44,3 +44,46 @@ var body: some View {
 ```
 
 ![example.gif](Previews/example1.gif)
+
+# DragView
+
+## onDraggingEndedAction
+
+```swift
+DragView(id: id) { dragInfo in
+    Text(dragInfo.isDragging ? "Im being dragged" : "Drag me")
+        .padding()
+        .background{
+            Color.mint
+        }
+}
+.onDraggingEndedAction { isSuccessfullDrop in
+    print("I stopped dragging and dropped: \(isSuccessfullDrop)")
+}
+```
+
+# DropView
+
+## onViewReceived
+
+```swift
+DropView(receiveFrom: id) { dropInfo in
+    if !dropInfo.didDrop{
+        Text("Drop Here")
+            .padding()
+            .background{
+                dropInfo.isColliding ? Color.green : Color.red
+            }
+    }
+    else{
+        Text("Dropped")
+            .padding()
+            .background{
+                Color.mint
+            }
+    }
+}
+.onViewReceived {
+    print("View was dropped")
+}
+```

@@ -12,8 +12,6 @@ import SwiftUI
  */
 public struct DragView<Content: View> : View{
     
-    public typealias IsSuccessfulDrop = Bool
-    
     @EnvironmentObject private var manager: DragDropManager
     
     @State private var dragOffset: CGSize = CGSize.zero
@@ -97,9 +95,9 @@ public struct DragView<Content: View> : View{
         An action indicating if the user has stopped dragging this view and indicates if it has dropped succesfuly on a `DropView` or not.
      
         - Parameters:
-            - action: The action that will happen after the user has stopped dragging.
+            - action: The action that will happen after the user has stopped dragging. (Also tell if it has dropped or not on a `DropView`) 
      */
-    public func onDraggingEndedAction(action: @escaping (IsSuccessfulDrop) -> Void) -> DragView{
+    public func onDraggingEndedAction(action: @escaping (Bool) -> Void) -> DragView{
         var new = self
         new.dragginStoppedAction = action
         return new
