@@ -71,6 +71,7 @@ class DragDropManager: ObservableObject {
     /// - Returns: `True` if the dragging view is colliding
     func isColliding(dragID: UUID) -> Bool {
         guard let currentDraggingOffset = currentDraggingOffset else { return false }
+        guard let currentDraggingViewID = currentDraggingViewID, dragID == currentDraggingViewID else { return false }
         return canDrop(id: dragID, offset: currentDraggingOffset)
     }
     
