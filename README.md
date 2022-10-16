@@ -8,6 +8,8 @@ In Xcode go to `File -> Add Packages... -> Search or Enter Package URL` and pa
 
 To use DragAndDrop first you must use `InteractiveDragDropContainer` to contain the `DragView` and `DropView` inside and give the proper functionality. `DragView` will have a unique `UUID` so that `DropView` will be able to identify what view it can receive.
 
+### Simple example where the DropView is allowed to receive from only the specified ID:
+
 ```swift
 let id = UUID()
     
@@ -44,6 +46,55 @@ var body: some View {
 ```
 
 ![example.gif](Previews/example1.gif)
+
+### DropView can also receive from any DropView by not setting the receiveFrom parameter
+
+```swift
+let id = UUID()
+let id2 = UUID()
+    
+var body: some View {
+    InteractiveDragDropContainer{
+        VStack{
+            DragView(id: id) { dragInfo in
+                Text(dragInfo.isDragging ? "Im being dragged" : "Drag me 1")
+                    .padding()
+                    .background{
+                        dragInfo.isColliding ? Color.purple : Color.mint
+                    }
+            }
+            DragView(id: id2) { dragInfo in
+                Text(dragInfo.isDragging ? "Im being dragged" : "Drag me 2")
+                    .padding()
+                    .background{
+                        dragInfo.isColliding ? Color.purple : Color.mint
+                    }
+            }
+            Spacer()
+            DropView { dropInfo in
+                Text(dropInfo.didDrop ? "Dropped" : "Drop Here 1")
+                    .padding()
+                    .background{
+                        dropInfo.isColliding ? Color.green : Color.red
+                    }
+            }
+            .onDragViewReceived { receivingViewID in
+                print(receivingViewID)
+            }
+            DropView { dropInfo in
+                Text(dropInfo.didDrop ? "Dropped" : "Drop Here 2")
+                    .padding()
+                    .background{
+                        dropInfo.isColliding ? Color.green : Color.red
+                    }
+            }
+            .onDragViewReceived { receivingViewID in
+                print(receivingViewID)
+            }
+        }
+    }
+}
+```
 
 # DragView
 
@@ -89,5 +140,8 @@ DropView(receiveFrom: id) { dropInfo in
 }
 ```
 
-# Next Update
-Replace the UUID to identify the views with the protocol Identifiable to be more generic.  
+# Future Updates
+
+- [ ]  Replace the UUID to identify the views with the protocol Identifiable to be more generic.
+- [ ]  Allow the user to decide whether to hide the DragView or not.
+- [ ]  Fix collision bugs.
