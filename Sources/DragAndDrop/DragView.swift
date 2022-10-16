@@ -7,10 +7,8 @@
 
 import SwiftUI
 
-/**
- A draging view that needs to be inside a `InteractiveDragDropContainer` to work properly
- */
-public struct DragView<Content: View> : View{
+/// A draging view that needs to be inside a `InteractiveDragDropContainer` to work properly.
+public struct DragView<Content: View> : View {
     
     @EnvironmentObject private var manager: DragDropManager
     
@@ -23,21 +21,19 @@ public struct DragView<Content: View> : View{
     private var dragginStoppedAction: ((Bool) -> Void)?
     private let elementID: UUID
     
-    public struct DragInfo{
+    public struct DragInfo {
         public let didDrop: Bool
         public let isDragging: Bool
         public let isColliding: Bool
     }
     
-    /**
-        Initialize this view with its unique ID and custom view.
-     
-        - Parameters:
-            - id: The unique id of this view.
-            - dragging: A binding property to let you know if this view is being dragged (optional).
-            - content: The custom content of this view and what will be dragged.
-     */
-    public init(id: UUID, @ViewBuilder content: @escaping (DragInfo) -> Content){
+    /// Initialize this view with its unique ID and custom view.
+    ///
+    /// - Parameters:
+    ///     - id: The unique id of this view.
+    ///     - dragging: A binding property to let you know if this view is being dragged (optional).
+    ///     - content: The custom content of this view and what will be dragged.
+    public init(id: UUID, @ViewBuilder content: @escaping (DragInfo) -> Content) {
         self.elementID = id
         self.content = content
     }
@@ -91,13 +87,12 @@ public struct DragView<Content: View> : View{
         }
     }
     
-    /**
-        An action indicating if the user has stopped dragging this view and indicates if it has dropped succesfuly on a `DropView` or not.
-     
-        - Parameters:
-            - action: The action that will happen after the user has stopped dragging. (Also tell if it has dropped or not on a `DropView`) 
-     */
-    public func onDraggingEndedAction(action: @escaping (Bool) -> Void) -> DragView{
+    /// An action indicating if the user has stopped dragging this view and indicates if it has dropped succesfuly on a `DropView` or not.
+    ///
+    /// - Parameter action: An action that will happen after the user has stopped dragging. (Also tell if it has dropped or not on a `DropView`) .
+    ///
+    /// - Returns: A DragView with a dragging ended action trigger.
+    public func onDraggingEndedAction(action: @escaping (Bool) -> Void) -> DragView {
         var new = self
         new.dragginStoppedAction = action
         return new
