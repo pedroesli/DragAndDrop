@@ -43,43 +43,42 @@ public struct DragView<Content: View> : View {
             content(DragInfo(didDrop: true, isDragging: false, isColliding: false)).hidden()
         }
         else{
-            content(DragInfo(didDrop: isDroped, isDragging: isDragging, isColliding: manager.isColliding(with: elementID)))
+            content(DragInfo(didDrop: isDroped, isDragging: isDragging, isColliding: manager.isColliding(dragID: elementID)))
                 .offset(dragOffset)
                 .overlay(GeometryReader(content: { geometry in
                     Color.clear
                         .onAppear {
-                            self.manager.addFor(drag: elementID, frame: geometry.frame(in: CoordinateSpace.named("stack")))
+                            self.manager.addFor(drag: elementID, frame: geometry.frame(in: .dragAndDrop))
                         }
                 }))
                 .gesture(
                     DragGesture()
-                        .onChanged({ value in
+                        .onChanged { value in
                             withAnimation(.interactiveSpring()) {
                                 dragOffset = value.translation
                             }
-                        })
-                        .simultaneously(with: DragGesture(coordinateSpace: CoordinateSpace.named("stack"))
-                                            .onChanged({ value in
+                        }
+                        .simultaneously(with: DragGesture(coordinateSpace: .dragAndDrop)
+                                            .onChanged { value in
                                                 manager.report(drag: elementID, offset: value.translation)
                                                 
-                                                if !isDragging{
+                                                if !isDragging {
                                                     isDragging = true
                                                 }
-                                            })
-                                            .onEnded({ value in
-                                                if manager.canDrop(id: elementID, offset: value.translation){
-                                                    self.manager.dropedViewID = elementID
-                                                    self.isDroped = true
+                                            }
+                                            .onEnded { value in
+                                                if manager.canDrop(id: elementID, offset: value.translation) {
+                                                    manager.dropDragView(of: elementID, at: value.translation)
+                                                    isDroped = true
                                                     dragginStoppedAction?(true)
-                                                }
-                                                else{
+                                                } else {
                                                     withAnimation(.spring()) {
                                                         dragOffset = CGSize.zero
                                                     }
                                                     dragginStoppedAction?(false)
                                                 }
                                                 isDragging = false
-                                            })
+                                            }
                                        )
                 )
                 .zIndex(isDragging ? 1 : 0)

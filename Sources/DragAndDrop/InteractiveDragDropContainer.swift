@@ -56,7 +56,7 @@ public struct InteractiveDragDropContainer<Content: View>: View {
         ZStack {
             content.environmentObject(manager)
         }
-        .coordinateSpace(name: "stack")
+        .coordinateSpace(name: CoordinateSpace.dragAndDrop)
     }
     
 }
