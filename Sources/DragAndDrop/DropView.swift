@@ -16,8 +16,8 @@ public struct DropView<Content: View>: View {
     
     private let elementID: UUID
     private var canRecieveAnyDragView = false
-    private let content: (DropInfo) -> Content
-    private var receivedAction: ((UUID) -> Void)?
+    private let content: (_ dragInfo: DropInfo) -> Content
+    private var receivedAction: ((_ receivingViewID: UUID) -> Void)?
     
     public struct DropInfo {
         public let didDrop: Bool

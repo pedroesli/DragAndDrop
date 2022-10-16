@@ -17,8 +17,8 @@ public struct DragView<Content: View> : View {
     @State private var isDragging = false
     @State private var isDroped = false
     
-    private let content: (DragInfo) -> Content
-    private var dragginStoppedAction: ((Bool) -> Void)?
+    private let content: (_ dropInfo: DragInfo) -> Content
+    private var dragginStoppedAction: ((_ isSuccessfullDrop: Bool) -> Void)?
     private let elementID: UUID
     
     public struct DragInfo {
