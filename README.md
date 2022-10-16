@@ -64,7 +64,8 @@ DragView(id: id) { dragInfo in
 
 # DropView
 
-## onViewReceived
+## onDragViewReceived
+An action that is called when the drag view has been released on this DragView and has been recieved accordingly.
 
 ```swift
 DropView(receiveFrom: id) { dropInfo in
@@ -83,7 +84,10 @@ DropView(receiveFrom: id) { dropInfo in
             }
     }
 }
-.onViewReceived {
-    print("View was dropped")
+.onDragViewReceived { receivingViewID in
+    print(receivingViewID)
 }
 ```
+
+# Next Update
+Replace the UUID to identify the views with the protocol Identifiable to be more generic.  
