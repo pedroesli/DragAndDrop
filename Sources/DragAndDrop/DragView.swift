@@ -98,6 +98,7 @@ public struct DragView<Content: View> : View {
             withAnimation(.spring()) {
                 dragOffset = CGSize.zero
             }
+            manager.report(drag: elementID, offset: CGSize.zero)
             dragginStoppedAction?(false)
         }
         isDragging = false
