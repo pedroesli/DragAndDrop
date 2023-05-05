@@ -7,9 +7,15 @@
 
 import SwiftUI
 
+public struct DragInfo {
+    public let didDrop: Bool
+    public let isDragging: Bool
+    public let isColliding: Bool
+}
+
 /// A draging view that needs to be inside a `InteractiveDragDropContainer` to work properly.
 public struct DragView<Content: View> : View {
-    
+
     @EnvironmentObject private var manager: DragDropManager
     
     @State private var dragOffset: CGSize = CGSize.zero
@@ -20,12 +26,6 @@ public struct DragView<Content: View> : View {
     private let content: (_ dropInfo: DragInfo) -> Content
     private var dragginStoppedAction: ((_ isSuccessfullDrop: Bool) -> Void)?
     private let elementID: UUID
-    
-    public struct DragInfo {
-        public let didDrop: Bool
-        public let isDragging: Bool
-        public let isColliding: Bool
-    }
     
     /// Initialize this view with its unique ID and custom view.
     ///
@@ -45,12 +45,14 @@ public struct DragView<Content: View> : View {
         else{
             content(DragInfo(didDrop: isDroped, isDragging: isDragging, isColliding: manager.isColliding(dragID: elementID)))
                 .offset(dragOffset)
-                .overlay(GeometryReader(content: { geometry in
-                    Color.clear
-                        .onAppear {
-                            self.manager.addFor(drag: elementID, frame: geometry.frame(in: .dragAndDrop))
-                        }
-                }))
+                .background {
+                    GeometryReader { geometry in
+                        Color.clear
+                            .onAppear {
+                                self.manager.addFor(drag: elementID, frame: geometry.frame(in: .dragAndDrop))
+                            }
+                    }
+                }
                 .gesture(
                     DragGesture()
                         .onChanged { value in
@@ -58,31 +60,13 @@ public struct DragView<Content: View> : View {
                                 dragOffset = value.translation
                             }
                         }
-                        .simultaneously(with: DragGesture(coordinateSpace: .dragAndDrop)
-                                            .onChanged { value in
-                                                manager.report(drag: elementID, offset: value.translation)
-                                                
-                                                if !isDragging {
-                                                    isDragging = true
-                                                }
-                                            }
-                                            .onEnded { value in
-                                                if manager.canDrop(id: elementID, offset: value.translation) {
-                                                    manager.dropDragView(of: elementID, at: value.translation)
-                                                    isDroped = true
-                                                    dragginStoppedAction?(true)
-                                                } else {
-                                                    withAnimation(.spring()) {
-                                                        dragOffset = CGSize.zero
-                                                    }
-                                                    dragginStoppedAction?(false)
-                                                }
-                                                isDragging = false
-                                            }
-                                       )
+                        .simultaneously(with:
+                            DragGesture(coordinateSpace: .dragAndDrop)
+                                .onChanged(onDragChanged(_:))
+                                .onEnded(onDragEnded(_:))
+                        )
                 )
                 .zIndex(isDragging ? 1 : 0)
-                .animation(.spring(), value: isDragging)
         }
     }
     
@@ -95,5 +79,27 @@ public struct DragView<Content: View> : View {
         var new = self
         new.dragginStoppedAction = action
         return new
+    }
+    
+    private func onDragChanged(_ value: DragGesture.Value) {
+        manager.report(drag: elementID, offset: value.translation)
+        
+        if !isDragging {
+            isDragging = true
+        }
+    }
+    
+    private func onDragEnded(_ value: DragGesture.Value) {
+        if manager.canDrop(id: elementID, offset: value.translation) {
+            manager.dropDragView(of: elementID, at: value.translation)
+            isDroped = true
+            dragginStoppedAction?(true)
+        } else {
+            withAnimation(.spring()) {
+                dragOffset = CGSize.zero
+            }
+            dragginStoppedAction?(false)
+        }
+        isDragging = false
     }
 }

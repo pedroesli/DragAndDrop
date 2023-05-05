@@ -7,6 +7,11 @@
 
 import SwiftUI
 
+public struct DropInfo {
+    public let didDrop: Bool
+    public let isColliding: Bool
+}
+
 /// A drop view that needs to be inside a `InteractiveDragDropContainer` to work properly.
 public struct DropView<Content: View>: View {
     
@@ -18,11 +23,6 @@ public struct DropView<Content: View>: View {
     private var canRecieveAnyDragView = false
     private let content: (_ dragInfo: DropInfo) -> Content
     private var receivedAction: ((_ receivingViewID: UUID) -> Void)?
-    
-    public struct DropInfo {
-        public let didDrop: Bool
-        public let isColliding: Bool
-    }
     
     /// Initializer for the drop view that uses the id of the receiving drag view.
     ///
@@ -41,16 +41,18 @@ public struct DropView<Content: View>: View {
     
     public var body: some View {
         content(DropInfo(didDrop: isDropped, isColliding: manager.isColliding(dropId: elementID)))
-            .overlay(GeometryReader(content: { geometry in
-                Color.clear
-                    .onAppear {
-                        self.manager.addFor(
-                            drop: elementID,
-                            frame: geometry.frame(in: .dragAndDrop),
-                            canRecieveAnyDragView: canRecieveAnyDragView
-                        )
-                    }
-            }))
+            .background {
+                GeometryReader { geometry in
+                    Color.clear
+                        .onAppear {
+                            self.manager.addFor(
+                                drop: elementID,
+                                frame: geometry.frame(in: .dragAndDrop),
+                                canRecieveAnyDragView: canRecieveAnyDragView
+                            )
+                        }
+                }
+            }
             .onChange(of: manager.droppedViewID) { newValue in
                 if newValue == elementID {
                     isDropped = true
