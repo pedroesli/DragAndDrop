@@ -1,5 +1,8 @@
 # DragAndDrop
 
+# Note! ⚠️
+This package is still experimental and in development, a lot can change.
+
 # Installation
 
 In Xcode go to `File -> Add Packages... -> Search or Enter Package URL` and paste in the repo's url: [https://github.com/pedroesli/DragAndDrop](https://github.com/pedroesli/DragAndDrop)
