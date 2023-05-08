@@ -2,7 +2,7 @@
 //  DropView.swift
 //  DragAndDropManagerMain
 //
-//  Created by Pedro Ésli Vieira do Nascimento on 21/02/22.
+//  Created by Pedro Ésli on 21/02/22.
 //
 
 import SwiftUI
