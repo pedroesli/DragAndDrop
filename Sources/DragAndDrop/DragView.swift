@@ -91,7 +91,7 @@ public struct DragView<Content, DragContent>: View where Content: View, DragCont
     /// - Parameter action: An action that will happen after the user has stopped dragging. (Also tell if it has dropped or not on a `DropView`) .
     ///
     /// - Returns: A DragView with a dragging ended action trigger.
-    public func onDraggingEndedAction(action: @escaping (Bool) -> Void) -> DragView {
+    public func onDraggingEnded(action: @escaping (Bool) -> Void) -> DragView {
         var new = self
         new.dragginStoppedAction = action
         return new
