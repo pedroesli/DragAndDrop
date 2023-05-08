@@ -13,16 +13,15 @@ public struct DropInfo {
 }
 
 /// A drop view that needs to be inside a `InteractiveDragDropContainer` to work properly.
-public struct DropView<Content: View>: View {
+public struct DropView<Content>: View where Content: View {
     
     @EnvironmentObject private var manager: DragDropManager
-    
     @State private var isDropped = false
     
     private let elementID: UUID
     private var canRecieveAnyDragView = false
     private let content: (_ dragInfo: DropInfo) -> Content
-    private var receivedAction: ((_ receivingViewID: UUID) -> Void)?
+    private var receivedAction: ((_ receivingID: UUID) -> Void)?
     
     /// Initializer for the drop view that uses the id of the receiving drag view.
     ///

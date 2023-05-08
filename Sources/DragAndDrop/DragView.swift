@@ -14,7 +14,9 @@ public struct DragInfo {
 }
 
 /// A draging view that needs to be inside a `InteractiveDragDropContainer` to work properly.
-public struct DragView<Content: View> : View {
+public struct DragView<Content, DragContent>: View where Content: View, DragContent: View{
+    public typealias ContentType = (_ isDraging: Bool) -> Content
+    public typealias DragContentType = (_ dragInfo: DragInfo) -> DragContent
 
     @EnvironmentObject private var manager: DragDropManager
     
@@ -23,7 +25,8 @@ public struct DragView<Content: View> : View {
     @State private var isDragging = false
     @State private var isDroped = false
     
-    private let content: (_ dropInfo: DragInfo) -> Content
+    private let content: ContentType
+    private var dragContent: DragContentType
     private var dragginStoppedAction: ((_ isSuccessfullDrop: Bool) -> Void)?
     private let elementID: UUID
     
@@ -31,20 +34,33 @@ public struct DragView<Content: View> : View {
     ///
     /// - Parameters:
     ///     - id: The unique id of this view.
-    ///     - dragging: A binding property to let you know if this view is being dragged (optional).
     ///     - content: The custom content of this view and what will be dragged.
-    public init(id: UUID, @ViewBuilder content: @escaping (DragInfo) -> Content) {
+    public init(id: UUID, @ViewBuilder content: @escaping ContentType) where DragContent == Content {
         self.elementID = id
         self.content = content
+        self.dragContent = { _ in
+            content(false)
+        }
+    }
+    
+    /// Initialize this view with its unique ID and custom view.
+    ///
+    /// - Parameters:
+    ///     - id: The unique id of this view.
+    ///     - content: The custom content of this view.
+    ///     - dragContent: A custom content for the dragging view.
+    public init(id: UUID, @ViewBuilder content: @escaping ContentType, @ViewBuilder dragContent: @escaping DragContentType) {
+        self.elementID = id
+        self.content = content
+        self.dragContent = dragContent
     }
     
     public var body: some View {
-        if isDroped {
-            content(DragInfo(didDrop: true, isDragging: false, isColliding: false)).hidden()
-        }
-        else{
-            content(DragInfo(didDrop: isDroped, isDragging: isDragging, isColliding: manager.isColliding(dragID: elementID)))
+        ZStack {
+            dragContent(DragInfo(didDrop: isDroped, isDragging: isDragging, isColliding: manager.isColliding(dragID: elementID)))
                 .offset(dragOffset)
+                .zIndex(isDragging ? 1 : 0)
+            content(isDragging)
                 .background {
                     GeometryReader { geometry in
                         Color.clear
@@ -66,8 +82,8 @@ public struct DragView<Content: View> : View {
                                 .onEnded(onDragEnded(_:))
                         )
                 )
-                .zIndex(isDragging ? 1 : 0)
         }
+        .zIndex(isDragging ? 1 : 0)
     }
     
     /// An action indicating if the user has stopped dragging this view and indicates if it has dropped succesfuly on a `DropView` or not.
@@ -93,6 +109,8 @@ public struct DragView<Content: View> : View {
         if manager.canDrop(id: elementID, offset: value.translation) {
             manager.dropDragView(of: elementID, at: value.translation)
             isDroped = true
+            dragOffset = CGSize.zero
+            manager.report(drag: elementID, offset: CGSize.zero)
             dragginStoppedAction?(true)
         } else {
             withAnimation(.spring()) {
